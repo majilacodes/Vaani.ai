@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Speech Translation</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden; /* Ensure the body doesn't scroll */
+            position: relative;
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1em;
+        }
+
+        .head {
+            margin-bottom: 20px;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        header nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        header nav ul li {
+            margin: 0 1em;
+        }
+
+        #f1 {
+            background-image: url('img1.webp');
+        }
+
+        #f2 {
+            background-image: url('img3.png');
+        }
+
+        #f3 {
+            background-image: url('img5.png');
+        }
+
+        header nav ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        header {
+            height: 50px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background-color: #000;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        /* Style for the background video */
+        #backgroundVideo {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -1;
+            background-size: cover;
+            opacity: 0.5; /* Slightly transparent for readability */
+        }
+
+        /* Content styling to ensure it's above the video */
+        .content {
+            position: relative;
+            z-index: 1;
+            color: white;
+            /* Adjust text color to ensure it's visible over the video */
+        }
+
+        /* Additional styling for content */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            /* Semi-transparent background for readability */
+        }
+
+        header a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .download-button {
+            background-color: #8bc34a;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 80%;
+            max-width: 1200px;
+            margin-top: 100px;
+        }
+
+        .content-left {
+            max-width: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .content-left h1 {
+            font-size: 36px;
+        }
+
+        .content-left p {
+            font-size: 18px;
+            line-height: 1.5;
+        }
+
+        .content-right {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            width: 300px;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .content-right button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #000000;
+        }
+        audio{
+            display: none;
+        }
+        .circle {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 1px solid #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: pulse 10s infinite;
+            transition: transform 0.3s ease;
+            position: relative;
+            z-index: 1000;
+            margin-bottom: 20px; /* Space between button and text */
+        }
+
+        /* Initial static state for the button */
+.circle-static {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    border: 1px solid #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 1000;
+    margin-bottom: 20px; /* Space between button and text */
+    background: rgba(0, 0, 0, 0.6);
+}
+
+/* Animation state for the button */
+.circle-animated {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    border: 1px solid #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: pulse 10s infinite;
+    transition: transform 0.3s ease;
+    position: relative;
+    z-index: 1000;
+    margin-bottom: 20px; /* Space between button and text */
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.inner-circle {
+    width: 200px;
+    height: 200px;
+    background: rgb(0, 250, 37);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.voice-icon {
+    width: 50px;
+    height: 50px;
+    background: url('voice-icon.png') no-repeat center center/contain;
+    margin-bottom: 10px;
+}
+
+.inner-circle span {
+    font-size: 1.2em;
+    color: #ccc;
+}
+
+.inner-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.3);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+
+}
+
+    </style>
+</head>
+
+<body>
+    <video autoplay muted loop id="backgroundVideo">
+        <source src="bgvid.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <header>
+        <div class="container">
+            <a href="http://127.0.0.1:5000/" id="head" style="position: relative; top: 0px; margin-top: 0; font-size: 200%;font-weight: bold;">vaani.ai</a>
+            <nav>
+                <ul>
+                    <li id="head" style="position: relative; top: -8px; margin-top: 0;"><a href="http://127.0.0.1:5000/">Features</a></li>
+                    <li id="head" style="position: relative; top: -8px; margin-top: 0;"><a href="http://127.0.0.1:5000/">Vision</a></li>
+                    <li id="head" style="position: relative; top: -8px; margin-top: 0;"><a href="http://127.0.0.1:5000/">Download</a></li>
+                    <li id="head" style="position: relative; top: -8px; margin-top: 0;"><a href="http://127.0.0.1:5000/">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <div class="content">
+        <div class="content-left">
+            <h1>Real-Time Speech Translation</h1>
+            <p>
+                Enjoy the seamless and quick translation supporting various Languages using vaani.ai
+            </p>
+            <audio id="audioPlayback" controls></audio>
+            <p id="recognizedText"></p>
+            <p id="translatedText"></p>
+        </div>
+        <!-- <div class="content-right">
+            <button id="pushToTalkButton" onclick="toggleRecording()">Push to Talk</button>
+
+        </div> -->
+        <div class="button-section">
+            <div class="circle circle-static">
+                <div class="inner-wrapper">
+                    <button class="inner-circle" id="pushToTalkButton" onclick="toggleRecording()">
+                        <div class="voice-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-soundwave" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8.5 2a.5.5 0 0 1 .5.5v11a.5.5 0 0 1-1 0v-11a.5.5 0 0 1 .5-.5m-2 2a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5m4 0a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5m-6 1.5A.5.5 0 0 1 5 6v4a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m8 0a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m-10 1A.5.5 0 0 1 3 7v2a.5.5 0 0 1-1 0V7a.5.5 0 0 1 .5-.5m12 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0V7a.5.5 0 0 1 .5-.5"/>
+                            </svg>
+                        </div>
+                        <span id="button-text" style="color: #000;">Push to Talk</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    </div>
+    <script>
+        const socket = io();
+        let mediaRecorder;
+        let audioChunks = [];
+
+        function startRecording() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks);
+                        const reader = new FileReader();
+                        reader.onload = function (event) {
+                            const audioData = event.target.result;
+                            socket.emit('audio', { audio: audioData });
+                        };
+                        reader.readAsArrayBuffer(audioBlob);
+                        audioChunks = [];
+                    };
+                    mediaRecorder.start();
+                });
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+        }
+
+        function toggleRecording() {
+    const button = document.getElementById('pushToTalkButton');
+    const circle = document.querySelector('.circle');
+    const buttonText = document.getElementById('button-text');
+
+    if (buttonText.innerText === 'Push to Talk') {
+        startRecording();
+        buttonText.innerText = 'Push to Stop';
+        circle.classList.remove('circle-static');
+        circle.classList.add('circle-animated');
+    } else {
+        stopRecording();
+        buttonText.innerText = 'Push to Talk';
+        circle.classList.remove('circle-animated');
+        circle.classList.add('circle-static');
+    }
+}
+
+
+        socket.on('audio_response', data => {
+            const audioBlob = new Blob([data.audio], { type: 'audio/mpeg' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audioPlayback = document.getElementById('audioPlayback');
+            audioPlayback.src = audioUrl;
+            audioPlayback.play();
+
+            document.getElementById('recognizedText').innerText = 'Recognized Text: ' + data.recognized_text;
+            document.getElementById('translatedText').innerText = 'Translated Text: ' + data.translated_text;
+        });
+
+        socket.on('exit_response', data => {
+            alert(data.message);
+        });
+    </script>
+</body>
+
+</html>
