@@ -55,22 +55,5 @@ Once you have Vaani set up, follow these steps to start translating:
 ## 🤝 Contributing
 We welcome contributions from the community! If you have ideas for new features, improvements, or bug fixes, please feel free to submit a pull request or open an issue. Together, we can make Vaani even better!
 
-## 📄 License
-This project is licensed under the MIT License. For more details, please refer to the [LICENSE](LICENSE) file.
-
-## 🙏 Acknowledgments
-A special thanks to:
-- **OpenAI** for their groundbreaking Whisper model and ChatGPT technology.
-- **Eleven Labs** for their exceptional text-to-speech API that brings our translations to life.
-- **Flask** for providing a robust framework that powers our application.
-- The open-source community for their invaluable contributions and support.
-
-## 🌐 Connect with Us
-Stay updated with the latest developments and join our community:
-- [GitHub Repository](https://github.com/yourusername/vaani)
-- [Twitter](https://twitter.com/yourusername)
-- [LinkedIn](https://linkedin.com/in/yourusername)
-
----
 
 Thank you for choosing Vaani! We hope it enhances your communication experience and opens up new opportunities for connection and understanding.
